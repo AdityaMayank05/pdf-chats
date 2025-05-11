@@ -12,15 +12,15 @@ import { Message } from "ai";
 type Props = { chatId: number };
 
 const ChatComponent = ({ chatId }: Props) => {
-  // const { data, isLoading } = useQuery<Message[]>({
-  //   queryKey: ["chat", chatId],
-  //   queryFn: async () => {
-  //     const response = await axios.post<Message[]>("/api/get-messages", {
-  //       chatId,
-  //     });
-  //     return response.data;
-  //   },
-  // });
+  const { data, isLoading } = useQuery<Message[]>({
+    queryKey: ["chat", chatId],
+    queryFn: async () => {
+      const response = await axios.post<Message[]>("/api/get-messages", {
+        chatId,
+      });
+      return response.data;
+    },
+  });
 
   const { input, handleInputChange, handleSubmit, messages } = useChat({
     api: "/api/chat",
@@ -49,7 +49,7 @@ const ChatComponent = ({ chatId }: Props) => {
       </div>
 
       {/* message list */}
-      <MessageList messages={messages}  />{/*isLoading={isLoading}*/}
+      <MessageList messages={messages} isLoading={isLoading}/>{/*isLoading={isLoading}*/}
 
       <form
         onSubmit={handleSubmit}

@@ -51,7 +51,7 @@ export async function loadUploadthingFileIntoPinecone(fileUrl: string, fileKey: 
   const client = await getPineconeClient();
   const pineconeIndex = await client.index("pdf-chats");
   const namespace = pineconeIndex.namespace(convertToAscii(fileKey));
-
+  
   console.log("Uploading vectors to Pinecone...");
   await namespace.upsert(vectors);
 

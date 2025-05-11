@@ -17,6 +17,7 @@ export async function getMatchesFromEmbeddings(
       vector: embeddings,
       includeMetadata: true,
     });
+    console.log("Query result:", queryResult);
     return queryResult.matches || [];
   } catch (error) {
     console.log("error querying embeddings", error);
@@ -26,6 +27,10 @@ export async function getMatchesFromEmbeddings(
 
 export async function getContext(query: string, fileKey: string) {
   const queryEmbeddings = await getEmbeddings(query);
+  console.log("Query embedding length:", queryEmbeddings.length);
+  console.log("Namespace during upsert:", convertToAscii(fileKey));
+  console.log("Namespace during query:", convertToAscii(fileKey));
+
   const matches = await getMatchesFromEmbeddings(queryEmbeddings, fileKey);
 
   const qualifyingDocs = matches.filter(
