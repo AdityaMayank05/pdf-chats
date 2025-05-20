@@ -10,17 +10,12 @@ import { redirect } from "next/navigation";
 import { Metadata } from "next";
 import React from "react";
 
-interface PageProps {
-  params: { chatId: string };
-  searchParams: Record<string, string | string[] | undefined>;
-}
-
 export const metadata: Metadata = {
   title: 'Chat with PDF',
   description: 'Chat with your PDF documents using AI',
 };
 
-const ChatPage = async ({ params }: PageProps) => {
+const ChatPage = async ({ params }: { params: { chatId: string } }) => {
   const { chatId } = params;
   const { userId } = await auth();
   if (!userId) {
