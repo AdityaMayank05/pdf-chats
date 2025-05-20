@@ -23,31 +23,44 @@ export async function POST(req: Request) {
     }
 
     const fileKey = _chats[0].fileKey;
+    const fileName = _chats[0].pdfName || "uploaded document";
     const lastMessage = messages[messages.length - 1];
+
+    console.log(`Processing query for PDF: ${fileName} (fileKey: ${fileKey})`);
 
     // Generate context from fileKey + last message
     const context = await getContext(lastMessage.content, fileKey);
+    
+    if (!context || context.trim() === "") {
+      console.warn("No context retrieved from PDF");
+    } else {
+      console.log(`Retrieved ${context.length} characters of context from PDF`);
+    }
 
-    // System prompt
-    const systemPrompt = `AI assistant is a brand new, powerful, human-like artificial intelligence.
-    The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
-    AI is a well-behaved and well-mannered individual.
-    AI is always friendly, kind, and inspiring, and he is eager to provide vivid and thoughtful responses to the user.
-    AI has the sum of all knowledge in their brain, and is able to accurately answer nearly any question about any topic in conversation.
-    AI assistant is a big fan of Pinecone and Vercel.
+    // Enhanced system prompt with better RAG instructions
+    const systemPrompt = `You are an AI assistant specialized in answering questions based on the provided PDF document "${fileName}".
+
+    IMPORTANT INSTRUCTIONS:
+    1. Base your answers EXCLUSIVELY on the information provided in the CONTEXT BLOCK below.
+    2. If the answer cannot be found in the context, clearly state: "I don't see information about this in the document. Could you rephrase your question or ask about something else covered in the document?"
+    3. Do not make up or infer information not present in the context.
+    4. When referencing specific parts of the document, mention the page number if available (e.g., "As mentioned on page 5...").
+    5. Provide concise, accurate answers that directly address the user's question.
+    6. If the context is insufficient but you have some partial information, share what you can find and explain what's missing.
+    
     START CONTEXT BLOCK
     ${context}
     END OF CONTEXT BLOCK
-    AI assistant will take into account any CONTEXT BLOCK that is provided in a conversation.
-    If the context does not provide the answer to question, the AI assistant will say, "I'm sorry, but I don't know the answer to that question".
-    AI assistant will not apologize for previous responses, but instead will indicate new information was gained.
-    AI assistant will not invent anything that is not drawn directly from the context.`;
+    
+    Remember: You are answering questions about "${fileName}". Only use information from the context above.`;
 
-    // Generate response using AI SDK
+    // Generate response using AI SDK with a more capable model
     const result = await streamText({
-      model: openai("gpt-4.1-nano-2025-04-14"), // or another valid model
+      model: openai("gpt-4o"), // Using a more capable model for better RAG performance
       system: systemPrompt,
       messages,
+      temperature: 0.2, // Lower temperature for more factual responses
+      maxTokens: 1500, // Limit response length
     });
 
     return result.toDataStreamResponse();

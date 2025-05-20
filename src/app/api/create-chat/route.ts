@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     const chat_id = await db
       .insert(chats)
       .values({
-        fileKey: file_url, // You can still call it fileKey if needed
+        fileKey: file_name, // You can still call it fileKey if needed
         pdfName: file_name,
         pdfUrl: file_url,
         userId,

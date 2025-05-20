@@ -13,7 +13,7 @@ export async function getMatchesFromEmbeddings(
     const pineconeIndex = await client.index("pdf-chats");
     const namespace = pineconeIndex.namespace(convertToAscii(fileKey));
     const queryResult = await namespace.query({
-      topK: 5,
+      topK: 8, // Increased from 5 to 8 for more context
       vector: embeddings,
       includeMetadata: true,
     });
@@ -26,23 +26,61 @@ export async function getMatchesFromEmbeddings(
 }
 
 export async function getContext(query: string, fileKey: string) {
-  const queryEmbeddings = await getEmbeddings(query);
-  console.log("Query embedding length:", queryEmbeddings.length);
-  console.log("Namespace during upsert:", convertToAscii(fileKey));
-  console.log("Namespace during query:", convertToAscii(fileKey));
+  if (!fileKey) {
+    console.warn("No fileKey provided for context retrieval");
+    return "";
+  }
 
-  const matches = await getMatchesFromEmbeddings(queryEmbeddings, fileKey);
+  try {
+    // Generate embeddings for the query
+    const queryEmbeddings = await getEmbeddings(query);
+    console.log("Query embedding length:", queryEmbeddings.length);
+    console.log("Namespace for query:", convertToAscii(fileKey));
 
-  const qualifyingDocs = matches.filter(
-    (match) => match.score && match.score > 0.7
-  );
+    // Get matches from Pinecone
+    const matches = await getMatchesFromEmbeddings(queryEmbeddings, fileKey);
 
-  type Metadata = {
-    text: string;
-    pageNumber: number;
-  };
+    // Use all retrieved matches regardless of score since we're getting low scores
+    // Sort by score in descending order to get the most relevant ones first
+    const qualifyingDocs = matches
+      .filter((match: any) => match.score && match.score > 0.45) // Much lower threshold
+      .sort((a: any, b: any) => (b.score || 0) - (a.score || 0));
 
-  let docs = qualifyingDocs.map((match) => (match.metadata as Metadata).text);
-  // 5 vectors
-  return docs.join("\n").substring(0, 3000);
+    if (qualifyingDocs.length === 0) {
+      // If still no matches, just use all matches regardless of score
+      console.warn("No qualifying documents found with sufficient relevance score, using all matches");
+      const allDocs = matches.sort((a: any, b: any) => (b.score || 0) - (a.score || 0));
+      
+      if (allDocs.length === 0) {
+        return "No content could be retrieved from the uploaded PDF.";
+      }
+      
+      // Use all documents instead of returning an error message
+      console.log("Using all available documents regardless of score");
+      qualifyingDocs.push(...allDocs);
+    }
+    
+    console.log(`Found ${qualifyingDocs.length} qualifying documents with scores ranging from ${qualifyingDocs[0].score} to ${qualifyingDocs[qualifyingDocs.length-1].score}`);
+
+    type Metadata = {
+      text: string;
+      pageNumber: number;
+    };
+
+    // Extract text and add page number references
+    let docsWithPageInfo = qualifyingDocs.map((match) => {
+      const metadata = match.metadata as Metadata;
+      return `[Page ${metadata.pageNumber}] ${metadata.text}`;
+    });
+
+    // Join the documents and limit to 4000 characters (increased from 3000)
+    const contextText = docsWithPageInfo.join("\n\n").substring(0, 4000);
+    console.log("Final context to LLM:", contextText.substring(0, 200) + "...");
+    console.log(`Retrieved ${qualifyingDocs.length} relevant chunks from PDF`);
+
+    return contextText;
+  } catch (error) {
+    console.error("Error retrieving context from PDF:", error);
+    return "Error retrieving context from the uploaded PDF.";
+  }
 }
