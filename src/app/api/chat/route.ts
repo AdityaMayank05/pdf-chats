@@ -1,5 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { generateText, type Message, streamText } from "ai";
+import { type Message, streamText } from "ai";
 import { getContext } from "@/lib/context";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";

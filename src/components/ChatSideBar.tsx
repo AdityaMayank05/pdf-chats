@@ -12,7 +12,7 @@ type Props = {
 };
 
 const ChatSideBar = ({ chats, chatId}: Props) => {
-  const [loading, setLoading] = React.useState(false);
+  // State removed to fix lint errors
 
   return (
     <div className="w-full h-screen overflow-auto no-scrollbar p-4 text-gray-200 bg-gray-900">

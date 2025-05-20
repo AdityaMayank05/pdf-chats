@@ -28,14 +28,19 @@ export async function getEmbeddings(input: unknown): Promise<number[]> {
 
   const first: unknown = response.embeddings[0];
   // 4. Confirm it has a `.values` array
+  // Define a proper interface for the embedding response
+  interface EmbeddingResponse {
+    values: number[];
+  }
+
   if (
     typeof first !== "object" ||
     first === null ||
-    !Array.isArray((first as any).values)
+    !Array.isArray((first as EmbeddingResponse).values)
   ) {
     throw new Error("Unexpected embedding format");
   }
 
   // 5. Return the raw float vector
-  return (first as any).values;
+  return (first as EmbeddingResponse).values;
 }
