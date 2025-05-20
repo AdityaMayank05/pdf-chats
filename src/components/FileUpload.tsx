@@ -56,19 +56,27 @@ const FileUpload = () => {
         const file_url = uploadedFile.url; // UploadThing gives `url`
         const file_name = file.name;
 
-        mutation.mutate(
-          { file_url, file_name },
-          {
-            onSuccess: ({ chat_id }) => {
-              toast.success("Chat created!");
-              router.push(`/chat/${chat_id}`);
-            },
-            onError: (err) => {
-              toast.error("Error creating chat");
-              console.error(err);
-            },
-          }
-        );
+        console.log("File uploaded successfully:", { file_url, file_name });
+        
+        try {
+          // Call the create-chat API
+          mutation.mutate(
+            { file_url, file_name },
+            {
+              onSuccess: ({ chat_id }) => {
+                toast.success("Chat created!");
+                router.push(`/chat/${chat_id}`);
+              },
+              onError: (err) => {
+                toast.error("Error creating chat");
+                console.error("Error creating chat:", err);
+              },
+            }
+          );
+        } catch (error) {
+          console.error("Error in mutation:", error);
+          toast.error("Error creating chat");
+        }
       } catch (error) {
         console.error(error);
         toast.error("Something went wrong");

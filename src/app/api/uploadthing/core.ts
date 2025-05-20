@@ -20,6 +20,12 @@ export const ourFileRouter = {
     .onUploadComplete(({ file, metadata }) => {
       // This code RUNS ON YOUR SERVER after upload
       console.log("Upload complete for file:", file.name);
+      console.log("File details:", {
+        url: file.url,
+        name: file.name,
+        size: file.size,
+        key: file.key,
+      });
       
       // Return any data you want to be accessible in the client
       return { uploadedBy: "pdf-chats" };
