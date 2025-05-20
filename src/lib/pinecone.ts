@@ -45,7 +45,8 @@ async function embedDocument(doc: Document): Promise<PineconeRecord> {
 
 // PDF page prep logic
 async function prepareDocument(page: PDFPage): Promise<Document[]> {
-  let { pageContent, metadata } = page;
+  const { pageContent: initialContent, metadata } = page;
+  let pageContent = initialContent;
   
   // Preserve some paragraph structure but remove excessive newlines
   pageContent = pageContent.replace(/\n{3,}/g, "\n\n");

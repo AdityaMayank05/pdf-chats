@@ -43,13 +43,13 @@ export async function getContext(query: string, fileKey: string) {
     // Use all retrieved matches regardless of score since we're getting low scores
     // Sort by score in descending order to get the most relevant ones first
     const qualifyingDocs = matches
-      .filter((match: any) => match.score && match.score > 0.45) // Much lower threshold
-      .sort((a: any, b: any) => (b.score || 0) - (a.score || 0));
+      .filter((match) => match.score && match.score > 0.45) // Much lower threshold
+      .sort((a, b) => (b.score || 0) - (a.score || 0));
 
     if (qualifyingDocs.length === 0) {
       // If still no matches, just use all matches regardless of score
       console.warn("No qualifying documents found with sufficient relevance score, using all matches");
-      const allDocs = matches.sort((a: any, b: any) => (b.score || 0) - (a.score || 0));
+      const allDocs = matches.sort((a, b) => (b.score || 0) - (a.score || 0));
       
       if (allDocs.length === 0) {
         return "No content could be retrieved from the uploaded PDF.";
@@ -68,7 +68,7 @@ export async function getContext(query: string, fileKey: string) {
     };
 
     // Extract text and add page number references
-    let docsWithPageInfo = qualifyingDocs.map((match) => {
+    const docsWithPageInfo = qualifyingDocs.map((match) => {
       const metadata = match.metadata as Metadata;
       return `[Page ${metadata.pageNumber}] ${metadata.text}`;
     });
