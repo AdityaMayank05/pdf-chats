@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description: 'Chat with your PDF documents using AI',
 };
 
-const ChatPage = async ({ params }: { params: { chatId: string } }) => {
+export default async function ChatPage({ params }: { params: { chatId: string } }) {
   const { chatId } = params;
   const { userId } = await auth();
   if (!userId) {
@@ -44,12 +44,10 @@ const ChatPage = async ({ params }: { params: { chatId: string } }) => {
           <PDFViewer pdf_url={currentChat?.pdfUrl || ""} />
         </div>
         {/* chat component */}
-        <div className="flex-[3] border-l-4 border-l-slate-200">
+        <div className="flex-[3] border-l-4 border-l-slate-200 overflow-auto no-scrollbar">
           <ChatComponent chatId={parseInt(chatId)} />
         </div>
       </div>
     </div>
   );
-};
-
-export default ChatPage;
+}
