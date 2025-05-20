@@ -56,7 +56,7 @@ export async function POST(req: Request) {
 
     // Generate response using AI SDK with a more capable model
     const result = await streamText({
-      model: openai("gpt-4o"), // Using a more capable model for better RAG performance
+      model: openai("gpt-4.1-mini-2025-04-14"), // Using a more capable model for better RAG performance
       system: systemPrompt,
       messages,
       temperature: 0.2, // Lower temperature for more factual responses
