@@ -10,12 +10,19 @@ import { redirect } from "next/navigation";
 import { Metadata } from "next";
 import React from "react";
 
+// Define a local Props type
+type Props = {
+  params: { chatId: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
 export const metadata: Metadata = {
   title: 'Chat with PDF',
   description: 'Chat with your PDF documents using AI',
 };
 
-export default async function ChatPage({ params }: { params: { chatId: string } }) {
+// Use the local Props type
+export default async function ChatPage({ params }: Props) { 
   const { chatId } = params;
   const { userId } = await auth();
   if (!userId) {
