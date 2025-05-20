@@ -7,15 +7,20 @@ import { chats } from "@/lib/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
 import React from "react";
 
-type Props = {
-  params: {
-    chatId: string;
-  };
+interface PageProps {
+  params: { chatId: string };
+  searchParams: Record<string, string | string[] | undefined>;
+}
+
+export const metadata: Metadata = {
+  title: 'Chat with PDF',
+  description: 'Chat with your PDF documents using AI',
 };
 
-const ChatPage = async ({ params}: Props) => {
+const ChatPage = async ({ params }: PageProps) => {
   const { chatId } = params;
   const { userId } = await auth();
   if (!userId) {
